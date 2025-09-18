@@ -33,7 +33,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       
       - name: Deploy to Hostinger
         uses: hostinger/deploy-action@v1
@@ -55,7 +55,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       
       - name: Deploy to Hostinger
         uses: hostinger/deploy-action@v1
@@ -147,7 +147,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       
       - name: Deploy to Hostinger
         uses: hostinger/deploy-action@v1
@@ -170,7 +170,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       
       - name: Set environment
         id: env
