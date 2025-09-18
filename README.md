@@ -85,13 +85,15 @@ jobs:
 ## Setting up Secrets
 
 1. **Get your Hostinger API Key:**
-    - Log in to your Hostinger account
-    - Navigate to API Settings
+    - Log in to your [Hostinger account](https://hpanel.hostinger.com/)
+    - Navigate to API [Settings](https://hpanel.hostinger.com/profile/api)
     - Generate or copy your API key
 
 2. **Get your Virtual Machine ID:**
-    - Go to your VPS dashboard
-    - Find the VM ID in the settings or overview section
+    - Go to your VPS overview dashboard
+    - Find the VM ID:
+      - If your VM has default hostname, eg.: srv123456.hstgr.cloud, then the VM ID is 123456
+      - If your VM has custom hostname, you can find the ID from the browser URL: https://hpanel.hostinger.com/vps/123456/overview
 
 3. **Add secrets to GitHub:**
     - Go to your repository → Settings → Secrets and variables → Actions
