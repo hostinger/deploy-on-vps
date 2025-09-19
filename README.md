@@ -1,6 +1,6 @@
 # Deploy to Hostinger VPS GitHub Action
 
-[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Deploy%20to%20Hostinger%20VPS-purple)](https://github.com/marketplace/actions/deploy-on-hostinger)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Deploy%20to%20Hostinger%20VPS-purple)](https://github.com/marketplace/actions/deploy-on-hostinger-vps)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Deploy your Docker applications to Hostinger VPS with ease using GitHub Actions.
