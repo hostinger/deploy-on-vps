@@ -63,7 +63,7 @@ jobs:
           api-key: ${{ secrets.HOSTINGER_API_KEY }}
           virtual-machine: ${{ vars.HOSTINGER_VM_ID }}
           project-name: my-awesome-app
-          personal-token: ${{ secrets.GITHUB_TOKEN }}
+          personal-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           docker-compose-path: docker/docker-compose.yml
           environment-variables: |
             NODE_ENV=production
@@ -99,7 +99,7 @@ jobs:
     - Go to your repository → Settings → Secrets and variables → Actions
     - Add the following secrets:
         - `HOSTINGER_API_KEY`: Your Hostinger API key
-        - `GITHUB_TOKEN`: (Optional) For private repositories
+        - `PERSONAL_ACCESS_TOKEN`: (Optional) For private repositories only
     - Add the following variables:
       - `HOSTINGER_VM_ID`: Your Hostinger VM ID
 
