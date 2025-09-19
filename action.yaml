@@ -1,6 +1,6 @@
 name: Deploy on Hostinger
 author: Hostinger
-description: Deploy your application on Hostinger VPS docker instance
+description: Deploy your dockerized application on Hostinger VPS instance
 
 branding:
   icon: 'upload-cloud'
