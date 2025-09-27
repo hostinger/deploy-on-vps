@@ -16,7 +16,7 @@ inputs:
   project-name:
     description: 'Name of the project for identification in Hostinger dashboard'
     required: false
-    default: ${{ github.repository }}
+    default: ${{ github.event.repository.name }}
   environment-variables:
     description: 'Environment variables in KEY=value format, separated by commas or newlines'
     required: false
@@ -27,7 +27,7 @@ inputs:
   docker-compose-path:
     description: 'Relative path to docker-compose.yml file from repository root'
     required: false
-    default: "docker-compose.yml"
+    default: ""
 
 runs:
   using: composite
