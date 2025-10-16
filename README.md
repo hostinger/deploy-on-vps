@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v5
       
       - name: Deploy to Hostinger
-        uses: hostinger/deploy-on-vps@v1
+        uses: hostinger/deploy-on-vps@v2
         with:
           api-key: ${{ secrets.HOSTINGER_API_KEY }}
           virtual-machine: ${{ vars.HOSTINGER_VM_ID }}
@@ -58,7 +58,7 @@ jobs:
       - uses: actions/checkout@v5
       
       - name: Deploy to Hostinger
-        uses: hostinger/deploy-on-vps@v1
+        uses: hostinger/deploy-on-vps@v2
         with:
           api-key: ${{ secrets.HOSTINGER_API_KEY }}
           virtual-machine: ${{ vars.HOSTINGER_VM_ID }}
@@ -152,7 +152,7 @@ jobs:
       - uses: actions/checkout@v5
       
       - name: Deploy to Hostinger
-        uses: hostinger/deploy-on-vps@v1
+        uses: hostinger/deploy-on-vps@v2
         with:
           api-key: ${{ secrets.HOSTINGER_API_KEY }}
           virtual-machine: ${{ vars.HOSTINGER_VM_ID }}
@@ -186,7 +186,7 @@ jobs:
           fi
       
       - name: Deploy to Hostinger
-        uses: hostinger/deploy-on-vps@v1
+        uses: hostinger/deploy-on-vps@v2
         with:
           api-key: ${{ secrets.HOSTINGER_API_KEY }}
           virtual-machine: ${{ steps.env.outputs.vm_id }}
