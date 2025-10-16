@@ -16,7 +16,7 @@ Deploy your Docker applications to Hostinger VPS with ease using GitHub Actions.
 - A Hostinger VPS with Docker installed
 - Hostinger API key (available in your Hostinger dashboard)
 - A `docker-compose.yml` file in your repository
-- For private repositories: GitHub Personal Access Token with `repo` scope
+- For private repositories - [SSH Deploy key](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/)
 
 ## Usage
 
@@ -42,7 +42,7 @@ jobs:
           virtual-machine: ${{ vars.HOSTINGER_VM_ID }}
 ```
 
-### Advanced Usage (Private Repository with Environment Variables)
+### Advanced Usage (environment variables, custom docker compose path)
 
 ```yaml
 name: Deploy to Hostinger
@@ -63,7 +63,6 @@ jobs:
           api-key: ${{ secrets.HOSTINGER_API_KEY }}
           virtual-machine: ${{ vars.HOSTINGER_VM_ID }}
           project-name: my-awesome-app
-          personal-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           docker-compose-path: docker/docker-compose.yml
           environment-variables: |
             NODE_ENV=production
@@ -79,7 +78,6 @@ jobs:
 | `virtual-machine`       | Virtual machine ID where the application will be deployed                  | Yes      | -                          |
 | `project-name`          | Name of the project for identification                                     | No       | `${{ github.repository }}` |
 | `environment-variables` | Environment variables (KEY=value format, newline separated)                | No       | -                          |
-| `personal-token`        | GitHub Personal Access Token (required for private repositories)           | No       | -                          |
 | `docker-compose-path`   | Path to docker-compose.yml file (will be detected automatically otherwise) | No       | -                          |
 
 ## Setting up Secrets
@@ -98,10 +96,14 @@ jobs:
 3. **Add secrets to GitHub:**
     - Go to your repository → Settings → Secrets and variables → Actions
     - Add the following secrets:
-        - `HOSTINGER_API_KEY`: Your Hostinger API key
-        - `PERSONAL_ACCESS_TOKEN`: (Optional) For private repositories only
+      - `HOSTINGER_API_KEY`: Your Hostinger API key
     - Add the following variables:
       - `HOSTINGER_VM_ID`: Your Hostinger VM ID
+
+4. **For private repositories:**
+    - Generate an SSH key in your VPS (if not yet generated)
+    - Add your SSH deployment key to private repository by visiting url `https://github.com/<owner name>/<your repo name>/settings/keys`
+    - You can find more information how to do that in [Hostinger documentation](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/)
 
 ## Environment Variables
 

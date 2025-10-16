@@ -21,9 +21,6 @@ inputs:
     description: 'Environment variables in KEY=value format, separated by commas or newlines'
     required: false
     default: ""
-  personal-token:
-    description: 'GitHub Personal Access Token with repo scope (required for private repositories)'
-    required: false
   docker-compose-path:
     description: 'Relative path to docker-compose.yml file from repository root'
     required: false
@@ -46,12 +43,6 @@ runs:
           echo "❌ Error: Virtual machine ID is required"
           exit 1
         fi
-        
-        # Check if PAT is provided for private repos
-        if [ "${{ github.event.repository.private }}" == "true" ] && [ -z "${{ inputs.personal-token }}" ]; then
-          echo "❌ Error: Personal access token is required for private repositories"
-          exit 1
-        fi
 
     - name: Prepare repository url
       id: repository
@@ -59,9 +50,6 @@ runs:
       run: |
         URL="${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/${{ inputs.docker-compose-path }}"
         
-        if [ "${{ github.event.repository.private }}" == "true" ]; then
-          URL="https://${{ github.actor }}:${{ inputs.personal-token }}@${URL#https://}"
-        fi  
         echo "url=$URL" >> $GITHUB_OUTPUT
 
     - name: Deploy to Hostinger
