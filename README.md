@@ -79,7 +79,7 @@ jobs:
 | `project-name`          | Name of the project for identification                                     | No       | `${{ github.repository }}` |
 | `environment-variables` | Environment variables (KEY=value format, newline separated)                | No       | -                          |
 | `docker-compose-path`   | Path to docker-compose.yml file (will be detected automatically otherwise) | No       | -                          |
-| `force-delete-container`| Delete original project if exists, to allow a clean deployment             | No       | - false                    |
+| `force-delete-project`  | Delete original project if exists, to allow a clean deployment             | No       | - false                    |
 
 ## Setting up Secrets
 
