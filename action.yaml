@@ -1,0 +1,175 @@
+name: Deploy on Hostinger VPS
+author: Hostinger
+description: Deploy your dockerized application on Hostinger VPS instance
+
+branding:
+  icon: 'upload-cloud'
+  color: 'purple'
+
+inputs:
+  api-key:
+    description: 'Hostinger API key for authentication. Get it from your Hostinger account dashboard.'
+    required: true
+  virtual-machine:
+    description: 'Virtual machine ID or name where the application will be deployed'
+    required: true
+  project-name:
+    description: 'Name of the project for identification in Hostinger dashboard'
+    required: false
+    default: ${{ github.event.repository.name }}
+  environment-variables:
+    description: 'Environment variables in KEY=value format, separated by commas or newlines'
+    required: false
+    default: ""
+  docker-compose-path:
+    description: 'Relative path to docker-compose.yml file from repository root'
+    required: false
+    default: ""
+  force-delete-container:
+    description: 'Force delete the running container before deployment'
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Validate inputs
+      shell: bash
+      run: |
+        # Check if API key is provided
+        if [ -z "${{ inputs.api-key }}" ]; then
+          echo "❌ Error: API key is required"
+          exit 1
+        fi
+        
+        # Check if virtual machine is provided
+        if [ -z "${{ inputs.virtual-machine }}" ]; then
+          echo "❌ Error: Virtual machine ID is required"
+          exit 1
+        fi
+
+    - name: Prepare repository url
+      id: repository
+      shell: bash
+      run: |
+        URL="${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/${{ inputs.docker-compose-path }}"
+        
+        echo "url=$URL" >> $GITHUB_OUTPUT
+
+    - name: Delete container if force-delete enabled
+      if: inputs.force-delete-container == 'true'
+      shell: bash
+      run: |
+        echo "🗑️  Force delete enabled. Attempting to delete running container..."
+        
+        RESPONSE=$(curl -s -w "\n%{http_code}" -X DELETE \
+          -H "Authorization: Bearer ${{ inputs.api-key }}" \
+          -H "Content-Type: application/json" \
+          "https://developers.hostinger.com/api/vps/v1/virtual-machines/${{ inputs.virtual-machine }}/docker/${{ inputs.project-name }}/down")
+        
+        # Extract response body and status code
+        HTTP_BODY=$(echo "$RESPONSE" | sed '$d')
+        HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+        
+        # Guard against empty or non-numeric status
+        if ! [[ "$HTTP_STATUS" =~ ^[0-9]+$ ]]; then
+          echo "⚠️  Failed to get valid HTTP response (status: '$HTTP_STATUS')"
+          echo "ℹ️  Continuing with deployment anyway..."
+        elif [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+          echo "✅ Container deleted successfully!"
+        else
+          echo "✅ Container deleted successfully!"
+        else
+          echo "⚠️  Failed to delete container with status code: $HTTP_STATUS"
+          
+          # Try to parse error message
+          if command -v jq &> /dev/null && [ -n "$HTTP_BODY" ]; then
+            ERROR_MSG=$(echo "$HTTP_BODY" | jq -r '.message' 2>/dev/null || echo "")
+            if [ -n "$ERROR_MSG" ]; then
+              echo "Error: $ERROR_MSG"
+            else
+              echo "$HTTP_BODY"
+            fi
+          else
+            echo "$HTTP_BODY"
+          fi
+          
+          echo "ℹ️  Continuing with deployment anyway..."
+        fi
+
+    - name: Deploy to Hostinger
+      shell: bash
+      run: |
+        BODY=$(jq -n \
+          --arg content "${{ steps.repository.outputs.url }}" \
+          --arg project_name "${{ inputs.project-name }}" \
+          --arg environment "${{ inputs.environment-variables }}" \
+          '{
+            project_name: $project_name,
+            content: $content,
+            environment: $environment
+          } | with_entries(select(.value != ""))')
+        
+        echo "🚀 Deploying to Hostinger..."
+        echo "📦 Project: ${{ inputs.project-name }}"
+        echo "🖥️ VM: ${{ inputs.virtual-machine }}"
+        
+        RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+          -H "Authorization: Bearer ${{ inputs.api-key }}" \
+          -H "Content-Type: application/json" \
+          -d "$BODY" \
+          "https://developers.hostinger.com/api/vps/v1/virtual-machines/${{ inputs.virtual-machine }}/docker")
+        
+        # Extract response body and status code
+        HTTP_BODY=$(echo "$RESPONSE" | sed '$d')
+        HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+        
+        # Check if deployment was successful
+        if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+          echo "✅ - Deployment initiated successfully!"
+        else
+          echo "❌ - Deployment failed with status code: $HTTP_STATUS"
+
+          # Try to parse error message
+          if command -v jq &> /dev/null && [ -n "$HTTP_BODY" ]; then
+            ERROR_MSG=$(echo "$HTTP_BODY" | jq -r '.message' 2>/dev/null || echo "")
+            if [ -n "$ERROR_MSG" ]; then
+              echo "Error: $ERROR_MSG"
+            else
+              echo "$HTTP_BODY"
+            fi
+          else
+            echo "$HTTP_BODY"
+          fi
+
+          case $HTTP_STATUS in
+            401)
+              echo "🔑 Hint: Check if your API key is valid and has the necessary permissions."
+              ;;
+            404)
+              echo "🔍 Hint: Verify that the virtual machine ID '${{ inputs.virtual-machine }}' exists."
+              ;;
+            422)
+              echo "⚠️  Hint: The request data might be invalid. Check your docker-compose file format."
+              ;;
+            500|502|503)
+              echo "🔧 Hint: Server error. The Hostinger API might be experiencing issues. Try again later."
+              ;;
+          esac
+        
+          exit 1
+        fi
+
+    - name: Output deployment summary
+      if: success()
+      shell: bash
+      run: |
+        echo "======================================"
+        echo "       Deployment Summary"
+        echo "======================================"
+        echo "✅ Status: SUCCESS"
+        echo "📦 Project: ${{ inputs.project-name }}"
+        echo "🖥️ VM: ${{ inputs.virtual-machine }}"
+        echo "🔄 Commit: ${{ github.sha }}"
+        echo "👤 Triggered by: ${{ github.actor }}"
+        echo "======================================"
