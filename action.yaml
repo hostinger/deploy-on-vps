@@ -25,6 +25,10 @@ inputs:
     description: 'Relative path to docker-compose.yml file from repository root'
     required: false
     default: ""
+  force-delete-project:
+    description: 'Force delete the running project if exists, before deployment'
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -51,6 +55,58 @@ runs:
         URL="${{ github.server_url }}/${{ github.repository }}/blob/${{ github.sha }}/${{ inputs.docker-compose-path }}"
         
         echo "url=$URL" >> $GITHUB_OUTPUT
+
+    - name: Delete project if force-delete-project enabled
+      if: inputs.force-delete-project == 'true'
+      shell: bash
+      run: |
+        echo "🗑️  Force delete enabled. Attempting to delete running container..."
+        echo "📦 Project: ${{ inputs.project-name }}"
+        echo "🖥️ VM: ${{ inputs.virtual-machine }}"
+
+        RESPONSE=$(curl -s -w "\n%{http_code}" -X DELETE \
+          -H "Authorization: Bearer ${{ inputs.api-key }}" \
+          -H "Content-Type: application/json" \
+          "https://developers.hostinger.com/api/vps/v1/virtual-machines/${{ inputs.virtual-machine }}/docker/${{ inputs.project-name }}/down")
+        
+        # Extract response body and status code
+        HTTP_BODY=$(echo "$RESPONSE" | sed '$d')
+        HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+        
+        # Check if API response
+        if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+          echo "✅ Container deleted successfully!"
+        else
+          echo "⚠️  Failed to delete container with status code: $HTTP_STATUS"
+          
+          # Try to parse error message
+          if command -v jq &> /dev/null && [ -n "$HTTP_BODY" ]; then
+            ERROR_MSG=$(echo "$HTTP_BODY" | jq -r '.message' 2>/dev/null || echo "")
+            if [ -n "$ERROR_MSG" ]; then
+              echo "Error: $ERROR_MSG"
+            else
+              echo "$HTTP_BODY"
+            fi
+          else
+            echo "$HTTP_BODY"
+          fi
+          
+          case $HTTP_STATUS in
+            401)
+              echo "🔑 Hint: Check if your API key is valid and has the necessary permissions."
+              ;;
+            404)
+              echo "🔍 Hint: Verify that the virtual machine ID '${{ inputs.virtual-machine }}' exists."
+              ;;
+            422)
+              echo "⚠️  Hint: The request data might be invalid. Check your docker-compose file format."
+              ;;
+            500|502|503)
+              echo "🔧 Hint: Server error. The Hostinger API might be experiencing issues. Try again later."
+              ;;
+          esac
+          echo "ℹ️  Continuing with deployment anyway..."
+        fi
 
     - name: Deploy to Hostinger
       shell: bash
