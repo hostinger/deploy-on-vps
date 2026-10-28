@@ -90,7 +90,7 @@ jobs:
 2. **Get your Virtual Machine ID:**
     - Go to your VPS overview dashboard
     - Find the VM ID:
-      - If your VM has default hostname, eg.: srv123456.hstgr.cloud, then the VM ID is 123456
+      - If your VM has default hostname, e.g. srv123456.hstgr.cloud, then the VM ID is 123456
       - If your VM has custom hostname, you can find the ID from the browser URL: https://hpanel.hostinger.com/vps/123456/overview
 
 3. **Add secrets to GitHub:**
@@ -102,8 +102,8 @@ jobs:
 
 4. **For private repositories:**
     - Generate an SSH key in your VPS (if not yet generated)
-    - Add your SSH deployment key to private repository by visiting url `https://github.com/<owner name>/<your repo name>/settings/keys`
-    - You can find more information how to do that in [Hostinger documentation](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/)
+    - Add your SSH deployment key to the private repository by visiting url `https://github.com/<owner name>/<your repo name>/settings/keys`
+    - You can find more information on how to do that in [Hostinger documentation](https://www.hostinger.com/support/how-to-deploy-from-private-github-repository-on-hostinger-docker-manager/)
 
 ## Environment Variables
 
@@ -195,7 +195,7 @@ jobs:
 
 ## Support
 
-For issues and feature requests, please [create an issue](https://github.com/hostinger/deploy-to-vps/issues) on GitHub.
+For issues and feature requests, please [create an issue](https://github.com/hostinger/deploy-on-vps/issues) on GitHub.
 
 ## Contributing
 
